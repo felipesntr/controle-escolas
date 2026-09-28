@@ -14,6 +14,7 @@ import {
     AddIcon,
     AlertCircleIcon,
     InfoIcon,
+    RefreshCwIcon,
     SearchIcon,
 } from "@/components/ui/icon";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
@@ -46,6 +47,7 @@ export default function SchoolsPage() {
     const [schoolToDelete, setSchoolToDelete] = useState<School | null>(null);
 
     const { schools, loading, error } = useFetchSchools();
+    const fetchSchools = useSchoolStore((state) => state.fetchSchools);
     const showToast = useFeedbackToast();
     const deleting = useSchoolStore((state) => state.deleting);
     const removeSchool = useSchoolStore((state) => state.removeSchool);
@@ -56,17 +58,28 @@ export default function SchoolsPage() {
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    accessibilityLabel="Nova escola"
-                    onPress={() => router.push("/schools/new")}
-                >
-                    <ButtonIcon as={AddIcon} />
-                </Button>
+                <>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        accessibilityLabel="Recarregar"
+                        disabled={loading}
+                        onPress={() => fetchSchools()}
+                    >
+                        <ButtonIcon as={RefreshCwIcon} />
+                    </Button>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        accessibilityLabel="Nova escola"
+                        onPress={() => router.push("/schools/new")}
+                    >
+                        <ButtonIcon as={AddIcon} />
+                    </Button>
+                </>
             ),
         });
-    }, [navigation, router]);
+    }, [navigation, router, fetchSchools, loading]);
 
     async function confirmDelete() {
         if (!schoolToDelete) {
@@ -129,6 +142,7 @@ export default function SchoolsPage() {
                                     <TableHead>Nome</TableHead>
                                     <TableHead>Endereço</TableHead>
                                     <TableHead>Cidade</TableHead>
+                                    <TableHead>Turmas</TableHead>
                                     <TableHead>Ações</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -138,6 +152,7 @@ export default function SchoolsPage() {
                                         <TableData>{item.name}</TableData>
                                         <TableData>{item.address}</TableData>
                                         <TableData>{item.city}</TableData>
+                                        <TableData>{item.classCount ?? 0}</TableData>
                                         <TableData useRNView>
                                             <ActionsMenu
                                                 actions={createSchoolRowActions({

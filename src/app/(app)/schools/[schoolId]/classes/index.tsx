@@ -14,6 +14,7 @@ import {
     AddIcon,
     AlertCircleIcon,
     InfoIcon,
+    RefreshCwIcon,
     SearchIcon,
 } from "@/components/ui/icon";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
@@ -62,22 +63,37 @@ export default function ClassesPage() {
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    accessibilityLabel="Nova turma"
-                    onPress={() =>
-                        router.push({
-                            pathname: "/schools/[schoolId]/classes/new",
-                            params: { schoolId },
-                        })
-                    }
-                >
-                    <ButtonIcon as={AddIcon} />
-                </Button>
+                <>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        accessibilityLabel="Recarregar"
+                        disabled={loading || !schoolId}
+                        onPress={() => {
+                            if (schoolId) {
+                                fetchClasses(schoolId);
+                            }
+                        }}
+                    >
+                        <ButtonIcon as={RefreshCwIcon} />
+                    </Button>
+                    <Button
+                        size="icon"
+                        variant="ghost"
+                        accessibilityLabel="Nova turma"
+                        onPress={() =>
+                            router.push({
+                                pathname: "/schools/[schoolId]/classes/new",
+                                params: { schoolId },
+                            })
+                        }
+                    >
+                        <ButtonIcon as={AddIcon} />
+                    </Button>
+                </>
             ),
         });
-    }, [navigation, router, schoolId]);
+    }, [navigation, router, schoolId, fetchClasses, loading]);
 
     async function confirmDelete() {
         if (!schoolId || !classToDelete) {

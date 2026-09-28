@@ -37,6 +37,10 @@ let classes: Class[] = [
     ),
 ];
 
+export function countClassesBySchoolId(schoolId: string) {
+    return classes.filter((item) => item.schoolId === schoolId).length;
+}
+
 export function removeClassesBySchoolId(schoolId: string) {
     classes = classes.filter((item) => item.schoolId !== schoolId);
 }

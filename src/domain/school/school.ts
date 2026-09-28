@@ -3,6 +3,7 @@ type School = {
     name: string;
     address: string;
     city: string;
+    classCount?: number;
 }
 
 type CreateSchoolInputDto = {

@@ -37,7 +37,7 @@ export function AppHeader({ options, back, navigation }: AppHeaderProps) {
             style={{ paddingTop: insets.top }}
         >
             <HStack className="h-14 items-center px-2">
-                <HStack className="w-12">
+                <HStack className="w-24">
                     {canGoBack ? (
                         <Button
                             variant="ghost"
@@ -58,7 +58,7 @@ export function AppHeader({ options, back, navigation }: AppHeaderProps) {
                     {options.title}
                 </Heading>
 
-                <HStack className="w-12 items-center justify-end">
+                <HStack className="w-24 items-center justify-end">
                     {options.headerRight?.({ canGoBack })}
                 </HStack>
             </HStack>

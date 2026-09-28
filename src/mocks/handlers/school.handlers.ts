@@ -6,7 +6,10 @@ import {
 import { API_URL } from "@/constants/api";
 import type { CreateSchoolInputDto, School, UpdateSchoolInputDto } from "@/domain/school/school";
 import { createSchool } from "@/domain/school/school.factory";
-import { removeClassesBySchoolId } from "@/mocks/handlers/class.handlers";
+import {
+    countClassesBySchoolId,
+    removeClassesBySchoolId,
+} from "@/mocks/handlers/class.handlers";
 
 let schools: School[] = [
     createSchool(
@@ -29,7 +32,12 @@ let schools: School[] = [
 
 export const schoolHandlers = [
     http.get(`${API_URL}/schools`, () => {
-        return HttpResponse.json(schools);
+        return HttpResponse.json(
+            schools.map((school) => ({
+                ...school,
+                classCount: countClassesBySchoolId(school.id),
+            }))
+        );
     }),
 
     http.get(`${API_URL}/schools/:schoolId`, ({ params }) => {

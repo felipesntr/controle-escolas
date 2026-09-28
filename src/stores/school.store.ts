@@ -28,7 +28,7 @@ type SchoolState = {
 
     error: string | null;
 
-    fetchSchools: () => Promise<void>;
+    fetchSchools: (options?: { silent?: boolean }) => Promise<void>;
 
     fetchSchool: (schoolId: string) => Promise<void>;
 
@@ -49,7 +49,7 @@ type SchoolState = {
 };
 
 export const useSchoolStore = create<SchoolState>(
-    (set) => ({
+    (set, get) => ({
         schools: [],
 
         selectedSchool: null,
@@ -62,10 +62,13 @@ export const useSchoolStore = create<SchoolState>(
 
         error: null,
 
-        fetchSchools: async () => {
+        fetchSchools: async (options) => {
+            const showLoading =
+                !options?.silent || get().schools.length === 0;
+
             try {
                 set({
-                    loading: true,
+                    loading: showLoading,
                     error: null,
                 });
 
@@ -120,7 +123,7 @@ export const useSchoolStore = create<SchoolState>(
                 const school = await createSchool(data);
 
                 set((state) => ({
-                    schools: [...state.schools, school],
+                    schools: [...state.schools, { ...school, classCount: 0 }],
                     creating: false,
                 }));
 
@@ -152,7 +155,9 @@ export const useSchoolStore = create<SchoolState>(
 
                 set((state) => ({
                     schools: state.schools.map((item) =>
-                        item.id === school.id ? school : item
+                        item.id === school.id
+                            ? { ...school, classCount: item.classCount ?? 0 }
+                            : item
                     ),
                     selectedSchool:
                         state.selectedSchool?.id === school.id
