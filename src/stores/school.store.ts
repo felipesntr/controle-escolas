@@ -7,6 +7,7 @@ import type {
 } from "@/domain/school/school";
 
 import { useClassStore } from "@/stores/class.store";
+import { waitForListLoading } from "@/utils/minimum-delay";
 import {
     createSchool,
     deleteSchool,
@@ -28,7 +29,7 @@ type SchoolState = {
 
     error: string | null;
 
-    fetchSchools: (options?: { silent?: boolean }) => Promise<void>;
+    fetchSchools: () => Promise<void>;
 
     fetchSchool: (schoolId: string) => Promise<void>;
 
@@ -49,7 +50,7 @@ type SchoolState = {
 };
 
 export const useSchoolStore = create<SchoolState>(
-    (set, get) => ({
+    (set) => ({
         schools: [],
 
         selectedSchool: null,
@@ -62,23 +63,24 @@ export const useSchoolStore = create<SchoolState>(
 
         error: null,
 
-        fetchSchools: async (options) => {
-            const showLoading =
-                !options?.silent || get().schools.length === 0;
+        fetchSchools: async () => {
+            const startedAt = Date.now();
 
             try {
                 set({
-                    loading: showLoading,
+                    loading: true,
                     error: null,
                 });
 
                 const schools = await getSchools();
+                await waitForListLoading(startedAt);
 
                 set({
                     schools,
                     loading: false,
                 });
             } catch (error) {
+                await waitForListLoading(startedAt);
                 set({
                     loading: false,
                     error:

@@ -13,6 +13,7 @@ import {
     getClasses,
     updateClass,
 } from "@/services/class.service";
+import { waitForListLoading } from "@/utils/minimum-delay";
 
 type ClassState = {
     classes: Class[];
@@ -68,6 +69,8 @@ export const useClassStore = create<ClassState>(
         error: null,
 
         fetchClasses: async (schoolId) => {
+            const startedAt = Date.now();
+
             try {
                 set({
                     loading: true,
@@ -75,12 +78,14 @@ export const useClassStore = create<ClassState>(
                 });
 
                 const classes = await getClasses(schoolId);
+                await waitForListLoading(startedAt);
 
                 set({
                     classes,
                     loading: false,
                 });
             } catch (error) {
+                await waitForListLoading(startedAt);
                 set({
                     loading: false,
                     error:

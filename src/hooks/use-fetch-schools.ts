@@ -15,11 +15,11 @@ export function useFetchSchools(): UseFetchSchoolsResult {
     const fetchSchools = useSchoolStore((state) => state.fetchSchools);
 
     useEffect(() => {
-        const unsubscribe = navigation.addListener("focus", () => {
-            fetchSchools({ silent: true });
-        });
+        fetchSchools();
 
-        return unsubscribe;
+        return navigation.addListener("focus", () => {
+            fetchSchools();
+        });
     }, [navigation, fetchSchools]);
 
     return {
