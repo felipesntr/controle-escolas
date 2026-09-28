@@ -1,56 +1,66 @@
-# Welcome to your Expo app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Organização
 
-## Get started
+A interface fica em `src/app`, com rotas do Expo Router. O que não é tela fica fora dali.
 
-1. Install dependencies
+| Parte | Onde | Papel |
+| --- | --- | --- |
+| Telas | `src/app` | Listas, detalhe, formulários de escola e turma |
+| Domínio | `src/domain` | Formato de escola, turma e dos dados de criação e edição |
+| Serviços | `src/services` | `fetch` para `http://localhost:3000` |
+| Estado | `src/stores` | Zustand: listas, item selecionado e os estados de carregar, salvar e excluir |
+| Mocks | `src/mocks` | MSW. Handlers de escola e turma, com dados só na memória |
+| Interface | `src/components/ui` | Componentes do Gluestack copiados para o projeto |
 
-   ```bash
-   npm install
-   ```
+## Telas
 
-2. Start the app
+Listagem de escolas, com filtro e paginação.
 
-   ```bash
-   npx expo start
-   ```
+<img src="docs/mostrando_lista_escolas.png" alt="Listagem de escolas" width="280" />
 
-In the output, you'll find options to open the app in a
+Menu de ações da linha: ver, editar e excluir.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+<img src="docs/dropdown_de_acoes.png" alt="Menu de ações da escola" width="280" />
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Cadastro de uma escola.
 
-## Get a fresh project
+<img src="docs/cadastro_escola.png" alt="Cadastro de escola" width="280" />
 
-When you're ready, run:
+Cadastro de uma turma, já vinculada à escola.
+
+<img src="docs/cadastro_turma.png" alt="Cadastro de turma" width="280" />
+
+## Versões utilizadas
+
+Expo SDK 57, com React Native 0.86 e React 19. A navegação é o Expo Router, a partir de `src/app`.
+
+A interface é Gluestack UI v5 com NativeWind 5 (Tailwind CSS 4). Os componentes usados nas telas incluem botão, campo, cartão, alerta, progresso, spinner, toast, tabela e menu. Os ícones da interface vêm do próprio conjunto do Gluestack. A fonte de texto é Poppins, carregada com `expo-font` e `@expo-google-fonts/poppins` na abertura do app.
+
+O estado das telas fica no Zustand. A API falsa é o MSW 2.
+
+## O que precisa estar instalado
+
+- Node.js na versão LTS atual e npm.
+- Um celular com o Expo Go compatível com o SDK 57, ou um emulador Android. No macOS, o simulador do iOS também serve.
+- Para o emulador Android, Android Studio com uma imagem de sistema criada.
+
+Não é preciso banco, backend nem conta na Expo para rodar em desenvolvimento.
+
+## Passos de instalação e execução
+
+Na pasta do projeto:
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+No terminal do Expo, `a` abre o Android e `w` abre no navegador. No celular, o caminho é o QR code pelo Expo Go, com o aparelho na mesma rede da máquina.
 
-### Other setup steps
+O primeiro start baixa a fonte e sobe o mock. Se a porta 8081 já estiver ocupada por outro `expo start`, encerre esse processo antes de subir de novo.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Para checar os tipos:
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx tsc --noEmit
+```
