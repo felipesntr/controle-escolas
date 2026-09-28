@@ -1,19 +1,19 @@
 import { Stack } from "expo-router";
 
-export default function SchoolLayout() {
+export default function ClassesLayout() {
     return (
         <Stack>
             <Stack.Screen
                 name="index"
                 options={{
-                    title: "Escola",
+                    title: "Turmas",
                 }}
             />
 
             <Stack.Screen
-                name="classes"
+                name="new"
                 options={{
-                    headerShown: false,
+                    title: "Nova turma",
                 }}
             />
         </Stack>
