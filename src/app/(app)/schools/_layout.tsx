@@ -1,8 +1,10 @@
 import { Stack } from "expo-router";
 
+import { gluestackStackOptions } from "@/constants/navigation";
+
 export default function SchoolsLayout() {
     return (
-        <Stack>
+        <Stack screenOptions={gluestackStackOptions}>
             <Stack.Screen
                 name="index"
                 options={{

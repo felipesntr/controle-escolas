@@ -1,16 +1,29 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useEffect, useLayoutEffect, useState } from "react";
 
-import { Button, ButtonText } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { useFeedbackToast } from "@/components/app-toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { LoadingBlock } from "@/components/loading-block";
+import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
+import {
+    AddIcon,
+    AlertCircleIcon,
+    EditIcon,
+    InfoIcon,
+    MenuIcon,
+    TrashIcon,
+} from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useEffect } from "react";
-import { useSchoolStore } from "../../../../stores/school.store";
+import { useSchoolStore } from "@/stores/school.store";
 
 export default function SchoolPage() {
     const router = useRouter();
+    const navigation = useNavigation();
+    const showToast = useFeedbackToast();
 
     const { schoolId } =
         useLocalSearchParams<{
@@ -29,9 +42,46 @@ export default function SchoolPage() {
         (state) => state.error
     );
 
+    const deleting = useSchoolStore((state) => state.deleting);
+
     const fetchSchool = useSchoolStore(
         (state) => state.fetchSchool
     );
+
+    const removeSchool = useSchoolStore(
+        (state) => state.removeSchool
+    );
+
+    const clearError = useSchoolStore(
+        (state) => state.clearError
+    );
+
+    const [confirmDelete, setConfirmDelete] = useState(false);
+
+    async function handleDelete() {
+        if (!schoolId) {
+            return;
+        }
+
+        try {
+            await removeSchool(schoolId);
+            showToast(
+                "Escola excluída",
+                "A escola e as turmas dela foram removidas."
+            );
+            router.replace("/schools");
+        } catch {
+            // O erro já está no Zustand.
+        }
+    }
+
+    useLayoutEffect(() => {
+        if (!school?.name) {
+            return;
+        }
+
+        navigation.setOptions({ title: school.name });
+    }, [navigation, school?.name]);
 
     useEffect(() => {
         if (!schoolId) {
@@ -43,70 +93,76 @@ export default function SchoolPage() {
 
     if (loading) {
         return (
-            <VStack className="flex-1 items-center justify-center bg-background">
-                <Text>
-                    Carregando escola...
-                </Text>
+            <VStack className="flex-1 items-center justify-center bg-background px-8">
+                <LoadingBlock label="Carregando escola..." />
             </VStack>
         );
     }
 
-    if (error) {
+    if (error && !confirmDelete) {
         return (
             <VStack className="flex-1 bg-background px-5 pt-6">
-                <Text className="text-error-600">
-                    {error}
-                </Text>
+                <Alert variant="destructive">
+                    <AlertIcon as={AlertCircleIcon} />
+                    <AlertText>{error}</AlertText>
+                </Alert>
             </VStack>
         );
     }
 
     if (!school) {
         return (
-            <VStack className="flex-1 items-center justify-center bg-background">
-                <Text>
-                    Escola não encontrada.
-                </Text>
+            <VStack className="flex-1 bg-background px-4 pt-4">
+                <Alert>
+                    <AlertIcon as={InfoIcon} />
+                    <AlertText>Escola não encontrada.</AlertText>
+                </Alert>
             </VStack>
         );
     }
 
     return (
-        <VStack className="flex-1 bg-background px-5 pt-6">
+        <VStack className="flex-1 bg-background px-4 pt-4">
             <VStack className="gap-1">
-                <Heading size="2xl">
-                    {school.name}
-                </Heading>
-
                 <Text className="text-typography-500">
                     {school.address}
                 </Text>
+
+                <Text className="text-typography-500">
+                    {school.city}
+                </Text>
             </VStack>
 
-            <HStack className="mt-6 gap-3">
-                <Card className="flex-1 rounded-2xl p-5">
-                    <VStack>
-                        <Text className="text-typography-500">
-                            Turmas
-                        </Text>
+            <HStack className="mt-4 gap-3">
+                <Button
+                    className="flex-1"
+                    size="sm"
+                    variant="outline"
+                    onPress={() =>
+                        router.push({
+                            pathname: "/schools/[schoolId]/edit",
+                            params: {
+                                schoolId,
+                            },
+                        })
+                    }
+                >
+                    <ButtonIcon as={EditIcon} />
+                    <ButtonText>Editar</ButtonText>
+                </Button>
 
-                        <Heading size="2xl">
-                            {school.classesCount}
-                        </Heading>
-                    </VStack>
-                </Card>
-
-                <Card className="flex-1 rounded-2xl p-5">
-                    <VStack>
-                        <Text className="text-typography-500">
-                            Alunos
-                        </Text>
-
-                        <Heading size="2xl">
-                            {school.studentsCount}
-                        </Heading>
-                    </VStack>
-                </Card>
+                <Button
+                    className="flex-1"
+                    size="sm"
+                    variant="destructive"
+                    onPress={() => {
+                        clearError();
+                        setConfirmDelete(true);
+                    }}
+                >
+                    <ButtonIcon as={TrashIcon} />
+                    <ButtonText>Excluir</ButtonText>
+                </Button>
             </HStack>
 
             <VStack className="mt-8 gap-4">
@@ -133,6 +189,7 @@ export default function SchoolPage() {
                             })
                         }
                     >
+                        <ButtonIcon as={AddIcon} />
                         <ButtonText>Nova</ButtonText>
                     </Button>
                 </HStack>
@@ -148,9 +205,23 @@ export default function SchoolPage() {
                         })
                     }
                 >
+                    <ButtonIcon as={MenuIcon} />
                     <ButtonText>Ver todas as turmas</ButtonText>
                 </Button>
             </VStack>
+
+            <ConfirmDialog
+                visible={confirmDelete}
+                title="Excluir escola?"
+                description={`A escola "${school.name}" e as turmas dela serão removidas.`}
+                error={confirmDelete ? error : null}
+                loading={deleting}
+                onCancel={() => {
+                    clearError();
+                    setConfirmDelete(false);
+                }}
+                onConfirm={handleDelete}
+            />
         </VStack>
     );
 }

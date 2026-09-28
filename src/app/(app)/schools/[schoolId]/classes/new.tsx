@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
     FormControl,
@@ -7,16 +7,23 @@ import {
     FormControlLabelText,
 } from "@/components/ui/form-control";
 
-import { Button, ButtonText } from "@/components/ui/button";
+import { useFeedbackToast } from "@/components/app-toast";
+import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
+import { AlertCircleIcon, CheckIcon } from "@/components/ui/icon";
 import { Input, InputField } from "@/components/ui/input";
+import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
+import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useClassStore } from "../../../../../stores/class.store";
+import { useClassStore } from "@/stores/class.store";
+import { useSchoolStore } from "@/stores/school.store";
 
 export default function NewClassPage() {
     const router = useRouter();
+    const showToast = useFeedbackToast();
 
     const { schoolId } =
         useLocalSearchParams<{
@@ -35,9 +42,27 @@ export default function NewClassPage() {
         (state) => state.error
     );
 
+    const school = useSchoolStore((state) => state.selectedSchool);
+    const fetchSchool = useSchoolStore((state) => state.fetchSchool);
+
     const [name, setName] = useState("");
     const [grade, setGrade] = useState("");
     const [shift, setShift] = useState("");
+    const [formError, setFormError] = useState<string | null>(null);
+
+    const schoolReady = school?.id === schoolId;
+    const filledFields = [name, grade, shift].filter((value) =>
+        value.trim()
+    ).length;
+    const progress = Math.round((filledFields / 3) * 100);
+
+    useEffect(() => {
+        if (!schoolId || school?.id === schoolId) {
+            return;
+        }
+
+        fetchSchool(schoolId);
+    }, [schoolId, school?.id, fetchSchool]);
 
     async function handleSubmit() {
         if (
@@ -46,8 +71,11 @@ export default function NewClassPage() {
             !grade.trim() ||
             !shift.trim()
         ) {
+            setFormError("Preencha nome, ano/série e turno.");
             return;
         }
+
+        setFormError(null);
 
         try {
             await addClass(schoolId, {
@@ -56,22 +84,21 @@ export default function NewClassPage() {
                 shift: shift.trim(),
             });
 
+            showToast("Turma cadastrada", `${name.trim()} foi adicionada.`);
             router.back();
         } catch {
             // Erro já está no Zustand.
         }
     }
     return (
-        <VStack className="flex-1 bg-background px-5 pt-6">
-            <VStack className="gap-1">
-                <Heading size="2xl">
-                    Nova turma
-                </Heading>
+        <VStack className="flex-1 bg-background px-4 pt-4">
+            <Text className="text-typography-500">
+                Cadastre uma nova turma.
+            </Text>
 
-                <Text className="text-typography-500">
-                    Cadastre uma nova turma.
-                </Text>
-            </VStack>
+            <Progress value={creating ? 100 : progress} className="mt-4">
+                <ProgressFilledTrack />
+            </Progress>
 
             <Card className="mt-6 rounded-2xl p-4">
                 <VStack>
@@ -80,8 +107,12 @@ export default function NewClassPage() {
                     </Text>
 
                     <Heading size="md">
-                        Escola Municipal João Silva
+                        {schoolReady ? school.name : "Carregando escola..."}
                     </Heading>
+
+                    {schoolReady ? null : (
+                        <Spinner className="mt-3" size="small" />
+                    )}
                 </VStack>
             </Card>
 
@@ -134,13 +165,26 @@ export default function NewClassPage() {
                     </Input>
                 </FormControl>
 
+                {formError || error ? (
+                    <Alert variant="destructive">
+                        <AlertIcon as={AlertCircleIcon} />
+                        <AlertText>{formError ?? error}</AlertText>
+                    </Alert>
+                ) : null}
+
                 <Button
                     size="lg"
                     className="mt-3"
+                    disabled={creating}
                     onPress={handleSubmit}
                 >
+                    {creating ? (
+                        <Spinner size="small" color="#fafafa" />
+                    ) : (
+                        <ButtonIcon as={CheckIcon} />
+                    )}
                     <ButtonText>
-                        Cadastrar turma
+                        {creating ? "Cadastrando..." : "Cadastrar turma"}
                     </ButtonText>
                 </Button>
             </VStack>

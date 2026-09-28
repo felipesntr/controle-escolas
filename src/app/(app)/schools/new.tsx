@@ -7,15 +7,20 @@ import {
     FormControlLabelText,
 } from "@/components/ui/form-control";
 
-import { Button, ButtonText } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
+import { useFeedbackToast } from "@/components/app-toast";
+import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { AlertCircleIcon, CheckIcon } from "@/components/ui/icon";
 import { Input, InputField } from "@/components/ui/input";
+import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
+import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useSchoolStore } from "@/stores/school.store";
 
 export default function NewSchoolPage() {
     const router = useRouter();
+    const showToast = useFeedbackToast();
 
     const addSchool = useSchoolStore(
         (state) => state.addSchool
@@ -32,11 +37,20 @@ export default function NewSchoolPage() {
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
     const [city, setCity] = useState("");
+    const [formError, setFormError] = useState<string | null>(null);
+
+    const filledFields = [name, address, city].filter((value) =>
+        value.trim()
+    ).length;
+    const progress = Math.round((filledFields / 3) * 100);
 
     async function handleSubmit() {
-        if (!name.trim()) {
+        if (!name.trim() || !address.trim() || !city.trim()) {
+            setFormError("Preencha nome, endereço e cidade.");
             return;
         }
+
+        setFormError(null);
 
         try {
             await addSchool({
@@ -45,23 +59,23 @@ export default function NewSchoolPage() {
                 city: city.trim(),
             });
 
+            showToast("Escola cadastrada", `${name.trim()} foi adicionada.`);
             router.back();
-        } catch {
+        } catch (error) {
+            console.error("Erro ao cadastrar escola", error);
             // O erro já está no Zustand.
         }
     }
 
     return (
-        <VStack className="flex-1 bg-background px-5 pt-6">
-            <VStack className="gap-1">
-                <Heading size="2xl">
-                    Nova escola
-                </Heading>
+        <VStack className="flex-1 bg-background px-4 pt-4">
+            <Text className="text-typography-500">
+                Cadastre uma nova escola pública.
+            </Text>
 
-                <Text className="text-typography-500">
-                    Cadastre uma nova escola pública.
-                </Text>
-            </VStack>
+            <Progress value={creating ? 100 : progress} className="mt-4">
+                <ProgressFilledTrack />
+            </Progress>
 
             <VStack className="mt-8 gap-5">
                 <FormControl>
@@ -112,13 +126,26 @@ export default function NewSchoolPage() {
                     </Input>
                 </FormControl>
 
+                {formError || error ? (
+                    <Alert variant="destructive">
+                        <AlertIcon as={AlertCircleIcon} />
+                        <AlertText>{formError ?? error}</AlertText>
+                    </Alert>
+                ) : null}
+
                 <Button
                     size="lg"
                     className="mt-3"
+                    disabled={creating}
                     onPress={handleSubmit}
                 >
+                    {creating ? (
+                        <Spinner size="small" color="#fafafa" />
+                    ) : (
+                        <ButtonIcon as={CheckIcon} />
+                    )}
                     <ButtonText>
-                        Cadastrar escola
+                        {creating ? "Cadastrando..." : "Cadastrar escola"}
                     </ButtonText>
                 </Button>
             </VStack>

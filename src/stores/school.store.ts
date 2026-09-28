@@ -1,0 +1,232 @@
+import { create } from "zustand";
+
+import type {
+    CreateSchoolInputDto,
+    School,
+    UpdateSchoolInputDto,
+} from "@/domain/school/school";
+
+import { useClassStore } from "@/stores/class.store";
+import {
+    createSchool,
+    deleteSchool,
+    getSchool,
+    getSchools,
+    updateSchool,
+} from "@/services/school.service";
+
+type SchoolState = {
+    schools: School[];
+
+    selectedSchool: School | null;
+
+    loading: boolean;
+    loadingSchool: boolean;
+    creating: boolean;
+    updating: boolean;
+    deleting: boolean;
+
+    error: string | null;
+
+    fetchSchools: () => Promise<void>;
+
+    fetchSchool: (schoolId: string) => Promise<void>;
+
+    addSchool: (
+        data: CreateSchoolInputDto
+    ) => Promise<School>;
+
+    editSchool: (
+        schoolId: string,
+        data: UpdateSchoolInputDto
+    ) => Promise<School>;
+
+    removeSchool: (schoolId: string) => Promise<void>;
+
+    clearSelectedSchool: () => void;
+
+    clearError: () => void;
+};
+
+export const useSchoolStore = create<SchoolState>(
+    (set) => ({
+        schools: [],
+
+        selectedSchool: null,
+
+        loading: false,
+        loadingSchool: false,
+        creating: false,
+        updating: false,
+        deleting: false,
+
+        error: null,
+
+        fetchSchools: async () => {
+            try {
+                set({
+                    loading: true,
+                    error: null,
+                });
+
+                const schools = await getSchools();
+
+                set({
+                    schools,
+                    loading: false,
+                });
+            } catch (error) {
+                set({
+                    loading: false,
+                    error:
+                        error instanceof Error
+                            ? error.message
+                            : "Erro ao carregar escolas.",
+                });
+            }
+        },
+
+        fetchSchool: async (schoolId) => {
+            try {
+                set({
+                    loadingSchool: true,
+                    error: null,
+                });
+
+                const school = await getSchool(schoolId);
+
+                set({
+                    selectedSchool: school,
+                    loadingSchool: false,
+                });
+            } catch (error) {
+                set({
+                    loadingSchool: false,
+                    error:
+                        error instanceof Error
+                            ? error.message
+                            : "Erro ao carregar escola.",
+                });
+            }
+        },
+
+        addSchool: async (data) => {
+            try {
+                set({
+                    creating: true,
+                    error: null,
+                });
+
+                const school = await createSchool(data);
+
+                set((state) => ({
+                    schools: [...state.schools, school],
+                    creating: false,
+                }));
+
+                return school;
+            } catch (error) {
+                set({
+                    creating: false,
+                    error:
+                        error instanceof Error
+                            ? error.message
+                            : "Erro ao criar escola.",
+                });
+
+                throw error;
+            }
+        },
+
+        editSchool: async (schoolId, data) => {
+            try {
+                set({
+                    updating: true,
+                    error: null,
+                });
+
+                const school = await updateSchool(
+                    schoolId,
+                    data
+                );
+
+                set((state) => ({
+                    schools: state.schools.map((item) =>
+                        item.id === school.id ? school : item
+                    ),
+                    selectedSchool:
+                        state.selectedSchool?.id === school.id
+                            ? school
+                            : state.selectedSchool,
+                    updating: false,
+                }));
+
+                return school;
+            } catch (error) {
+                set({
+                    updating: false,
+                    error:
+                        error instanceof Error
+                            ? error.message
+                            : "Erro ao atualizar escola.",
+                });
+
+                throw error;
+            }
+        },
+
+        removeSchool: async (schoolId) => {
+            try {
+                set({
+                    deleting: true,
+                    error: null,
+                });
+
+                await deleteSchool(schoolId);
+
+                set((state) => ({
+                    schools: state.schools.filter(
+                        (item) => item.id !== schoolId
+                    ),
+                    selectedSchool:
+                        state.selectedSchool?.id === schoolId
+                            ? null
+                            : state.selectedSchool,
+                    deleting: false,
+                }));
+
+                useClassStore.setState((state) => ({
+                    classes: state.classes.filter(
+                        (item) => item.schoolId !== schoolId
+                    ),
+                    selectedClass:
+                        state.selectedClass?.schoolId === schoolId
+                            ? null
+                            : state.selectedClass,
+                }));
+            } catch (error) {
+                set({
+                    deleting: false,
+                    error:
+                        error instanceof Error
+                            ? error.message
+                            : "Erro ao excluir escola.",
+                });
+
+                throw error;
+            }
+        },
+
+        clearSelectedSchool: () => {
+            set({
+                selectedSchool: null,
+            });
+        },
+
+        clearError: () => {
+            set({
+                error: null,
+            });
+        },
+    })
+);

@@ -110,4 +110,22 @@
   --color-ring: rgb(var(--ring));
   --color-accent: rgb(var(--accent));
   --color-accent-foreground: rgb(var(--accent-foreground));
+  --font-sans: Poppins_400Regular;
+  --font-body: Poppins_400Regular;
+  --font-heading: Poppins_600SemiBold;
+}
+
+@utility font-medium {
+  font-family: Poppins_500Medium;
+  font-weight: 500;
+}
+
+@utility font-semibold {
+  font-family: Poppins_600SemiBold;
+  font-weight: 600;
+}
+
+@utility font-bold {
+  font-family: Poppins_700Bold;
+  font-weight: 700;
 }
