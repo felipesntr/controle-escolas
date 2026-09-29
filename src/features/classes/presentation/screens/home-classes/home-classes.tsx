@@ -3,9 +3,9 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { ScrollView } from "react-native";
 
 import type { Class } from "@/features/classes/domain/class";
+import { createClassRowActions } from "@/features/classes/presentation/components/class-row-actions";
 import { ActionsMenu } from "@/shared/components/actions-menu";
 import { useFeedbackToast } from "@/shared/components/app-toast";
-import { createClassRowActions } from "@/shared/components/class-row-actions";
 import { ConfirmDialog } from "@/shared/components/confirm-dialog";
 import { LoadingBlock } from "@/shared/components/loading-block";
 import { TablePagination } from "@/shared/components/table-pagination";
