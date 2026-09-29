@@ -1,13 +1,13 @@
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useLayoutEffect, useState } from "react";
 
-import { useFeedbackToast } from "@/components/app-toast";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { LoadingBlock } from "@/components/loading-block";
-import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
-import { HStack } from "@/components/ui/hstack";
+import { useFeedbackToast } from "@/shared/components/app-toast";
+import { ConfirmDialog } from "@/shared/components/confirm-dialog";
+import { LoadingBlock } from "@/shared/components/loading-block";
+import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
+import { Button, ButtonIcon, ButtonText } from "@/shared/components/ui/button";
+import { Heading } from "@/shared/components/ui/heading";
+import { HStack } from "@/shared/components/ui/hstack";
 import {
     AddIcon,
     AlertCircleIcon,
@@ -15,10 +15,10 @@ import {
     InfoIcon,
     MenuIcon,
     TrashIcon,
-} from "@/components/ui/icon";
-import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
-import { useSchoolStore } from "@/stores/school.store";
+} from "@/shared/components/ui/icon";
+import { Text } from "@/shared/components/ui/text";
+import { VStack } from "@/shared/components/ui/vstack";
+import { useSchoolStore } from "@/shared/stores/school.store";
 
 export default function SchoolPage() {
     const router = useRouter();

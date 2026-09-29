@@ -1,0 +1,30 @@
+import { useNavigation } from "expo-router";
+import { useEffect } from "react";
+
+import type { School } from "@/features/schools/domain/school";
+import { useSchoolStore } from "@/shared/stores/school.store";
+
+type UseFetchSchoolsResult = {
+    schools: School[];
+    loading: boolean;
+    error: string | null;
+};
+
+export function useFetchSchools(): UseFetchSchoolsResult {
+    const navigation = useNavigation();
+    const fetchSchools = useSchoolStore((state) => state.fetchSchools);
+
+    useEffect(() => {
+        fetchSchools();
+
+        return navigation.addListener("focus", () => {
+            fetchSchools();
+        });
+    }, [navigation, fetchSchools]);
+
+    return {
+        schools: useSchoolStore((state) => state.schools),
+        loading: useSchoolStore((state) => state.loading),
+        error: useSchoolStore((state) => state.error),
+    };
+}

@@ -8,15 +8,15 @@ import {
   useFonts,
 } from "@expo-google-fonts/poppins";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 
-import { screenBackground } from "@/constants/navigation";
-import { LoadingBlock } from "@/components/loading-block";
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { VStack } from "@/components/ui/vstack";
 import { enableMockServer } from "@/mocks/enable-mock-server";
+import { LoadingBlock } from "@/shared/components/loading-block";
+import { GluestackUIProvider } from "@/shared/components/ui/gluestack-ui-provider";
+import { VStack } from "@/shared/components/ui/vstack";
+import { screenBackground } from "@/shared/constants/navigation";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 

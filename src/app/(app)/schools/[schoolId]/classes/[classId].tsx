@@ -1,23 +1,23 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 
+import { useFeedbackToast } from "@/shared/components/app-toast";
+import { ConfirmDialog } from "@/shared/components/confirm-dialog";
+import { LoadingBlock } from "@/shared/components/loading-block";
+import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
+import { Button, ButtonIcon, ButtonText } from "@/shared/components/ui/button";
 import {
     FormControl,
     FormControlLabel,
     FormControlLabelText,
-} from "@/components/ui/form-control";
-import { useFeedbackToast } from "@/components/app-toast";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { LoadingBlock } from "@/components/loading-block";
-import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { AlertCircleIcon, CheckIcon, TrashIcon } from "@/components/ui/icon";
-import { Input, InputField } from "@/components/ui/input";
-import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
-import { useClassStore } from "@/stores/class.store";
+} from "@/shared/components/ui/form-control";
+import { AlertCircleIcon, CheckIcon, TrashIcon } from "@/shared/components/ui/icon";
+import { Input, InputField } from "@/shared/components/ui/input";
+import { Progress, ProgressFilledTrack } from "@/shared/components/ui/progress";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { Text } from "@/shared/components/ui/text";
+import { VStack } from "@/shared/components/ui/vstack";
+import { useClassStore } from "@/shared/stores/class.store";
 
 export default function EditClassPage() {
     const router = useRouter();

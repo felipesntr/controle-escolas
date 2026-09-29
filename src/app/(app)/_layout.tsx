@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-import { screenBackground } from "@/constants/navigation";
+import { screenBackground } from "@/shared/constants/navigation";
 
 export default function AppLayout() {
     return (

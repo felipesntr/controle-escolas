@@ -5,18 +5,18 @@ import {
     FormControl,
     FormControlLabel,
     FormControlLabelText,
-} from "@/components/ui/form-control";
+} from "@/shared/components/ui/form-control";
 
-import { useFeedbackToast } from "@/components/app-toast";
-import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { AlertCircleIcon, CheckIcon } from "@/components/ui/icon";
-import { Input, InputField } from "@/components/ui/input";
-import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
-import { useSchoolStore } from "@/stores/school.store";
+import { useFeedbackToast } from "@/shared/components/app-toast";
+import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
+import { Button, ButtonIcon, ButtonText } from "@/shared/components/ui/button";
+import { AlertCircleIcon, CheckIcon } from "@/shared/components/ui/icon";
+import { Input, InputField } from "@/shared/components/ui/input";
+import { Progress, ProgressFilledTrack } from "@/shared/components/ui/progress";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { Text } from "@/shared/components/ui/text";
+import { VStack } from "@/shared/components/ui/vstack";
+import { useSchoolStore } from "@/shared/stores/school.store";
 
 export default function NewSchoolPage() {
     const router = useRouter();

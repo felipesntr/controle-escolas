@@ -2,22 +2,23 @@ import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
 import { ScrollView } from "react-native";
 
-import { ActionsMenu } from "@/components/actions-menu";
-import { useFeedbackToast } from "@/components/app-toast";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { LoadingBlock } from "@/components/loading-block";
-import { createSchoolRowActions } from "@/components/school-row-actions";
-import { TablePagination } from "@/components/table-pagination";
-import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
-import { Button, ButtonIcon } from "@/components/ui/button";
+import { School } from "@/features/schools/domain/school";
+import { createSchoolRowActions } from "@/features/schools/presentation/components/school-row-actions";
+import { ActionsMenu } from "@/shared/components/actions-menu";
+import { useFeedbackToast } from "@/shared/components/app-toast";
+import { ConfirmDialog } from "@/shared/components/confirm-dialog";
+import { LoadingBlock } from "@/shared/components/loading-block";
+import { TablePagination } from "@/shared/components/table-pagination";
+import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
+import { Button, ButtonIcon } from "@/shared/components/ui/button";
 import {
     AddIcon,
     AlertCircleIcon,
     InfoIcon,
     RefreshCwIcon,
     SearchIcon,
-} from "@/components/ui/icon";
-import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+} from "@/shared/components/ui/icon";
+import { Input, InputField, InputIcon, InputSlot } from "@/shared/components/ui/input";
 import {
     Table,
     TableBody,
@@ -26,13 +27,12 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
-import { School } from "@/domain/school/school";
-import { useFetchSchools } from "@/hooks/use-fetch-schools";
-import { usePagedList } from "@/hooks/use-paged-list";
-import { useSchoolStore } from "@/stores/school.store";
+} from "@/shared/components/ui/table";
+import { Text } from "@/shared/components/ui/text";
+import { VStack } from "@/shared/components/ui/vstack";
+import { useFetchSchools } from "@/shared/hooks/use-fetch-schools";
+import { usePagedList } from "@/shared/hooks/use-paged-list";
+import { useSchoolStore } from "@/shared/stores/school.store";
 import { Div } from "@expo/html-elements";
 
 function matchesSchool(school: School, query: string) {

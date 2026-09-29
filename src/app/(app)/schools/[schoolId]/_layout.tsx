@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-import { gluestackStackOptions } from "@/constants/navigation";
+import { gluestackStackOptions } from "@/shared/constants/navigation";
 
 export default function SchoolLayout() {
     return (

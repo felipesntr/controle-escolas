@@ -2,22 +2,24 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { ScrollView } from "react-native";
 
-import { ActionsMenu } from "@/components/actions-menu";
-import { createClassRowActions } from "@/components/class-row-actions";
-import { useFeedbackToast } from "@/components/app-toast";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { LoadingBlock } from "@/components/loading-block";
-import { TablePagination } from "@/components/table-pagination";
-import { Alert, AlertIcon, AlertText } from "@/components/ui/alert";
-import { Button, ButtonIcon } from "@/components/ui/button";
+import type { Class } from "@/features/classes/domain/class";
+import { usePagedList } from "@/hooks/use-paged-list";
+import { ActionsMenu } from "@/shared/components/actions-menu";
+import { useFeedbackToast } from "@/shared/components/app-toast";
+import { createClassRowActions } from "@/shared/components/class-row-actions";
+import { ConfirmDialog } from "@/shared/components/confirm-dialog";
+import { LoadingBlock } from "@/shared/components/loading-block";
+import { TablePagination } from "@/shared/components/table-pagination";
+import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
+import { Button, ButtonIcon } from "@/shared/components/ui/button";
 import {
     AddIcon,
     AlertCircleIcon,
     InfoIcon,
     RefreshCwIcon,
     SearchIcon,
-} from "@/components/ui/icon";
-import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+} from "@/shared/components/ui/icon";
+import { Input, InputField, InputIcon, InputSlot } from "@/shared/components/ui/input";
 import {
     Table,
     TableBody,
@@ -26,12 +28,10 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table";
-import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
-import type { Class } from "@/domain/class/class";
-import { usePagedList } from "@/hooks/use-paged-list";
-import { useClassStore } from "@/stores/class.store";
+} from "@/shared/components/ui/table";
+import { Text } from "@/shared/components/ui/text";
+import { VStack } from "@/shared/components/ui/vstack";
+import { useClassStore } from "@/shared/stores/class.store";
 import { Div } from "@expo/html-elements";
 
 function matchesClass(item: Class, query: string) {
