@@ -1,59 +1,43 @@
-import type { RequestHandler } from "msw";
+import type { Server } from "miragejs";
 
-let startPromise: Promise<void> | null = null;
+import { createMockServer } from "./server";
 
-function isAlreadyEnabled(error: unknown) {
-    return (
-        error instanceof Error &&
-        error.message.includes("already enabled")
-    );
+let server: Server | null = null;
+
+function ensureCrypto() {
+    if (typeof globalThis.crypto?.randomUUID === "function") {
+        return;
+    }
+
+    Object.defineProperty(globalThis, "crypto", {
+        configurable: true,
+        value: {
+            randomUUID() {
+                return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+                    /[xy]/g,
+                    (character) => {
+                        const random = Math.floor(Math.random() * 16);
+                        const value = character === "x" ? random : (random & 0x3) | 0x8;
+                        return value.toString(16);
+                    }
+                );
+            },
+        },
+    });
 }
 
-export function enableMockServer(handlers: RequestHandler[]) {
+export function enableMockServer(registerRoutes: (server: Server) => void) {
     if (!__DEV__) {
         return Promise.resolve();
     }
 
-    if (!startPromise) {
-        startPromise = startMockServer(handlers).catch((error: unknown) => {
-            startPromise = null;
-            throw error;
-        });
+    ensureCrypto();
+
+    if (server) {
+        server.shutdown();
     }
 
-    return startPromise;
-}
+    server = createMockServer(registerRoutes);
 
-async function startMockServer(handlers: RequestHandler[]) {
-    await import("../../../msw.polyfills");
-
-    const { createMockServer } = await import("./server");
-    const server = createMockServer(handlers);
-
-    if (server == null) {
-        throw new Error("Não foi possível iniciar o servidor de mocks.");
-    }
-
-    const options = {
-        onUnhandledRequest(request: Request, print: { warning: () => void }) {
-            const { pathname } = new URL(request.url);
-
-            if (pathname === "/symbolicate") {
-                return;
-            }
-
-            print.warning();
-        },
-    };
-
-    try {
-        server.listen(options);
-    } catch (error) {
-        if (!isAlreadyEnabled(error)) {
-            throw error;
-        }
-
-        server.close();
-        server.listen(options);
-    }
+    return Promise.resolve();
 }

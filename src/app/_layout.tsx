@@ -12,13 +12,13 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 
-import { classHandlers } from "@/features/classes/mocks/class.handlers";
-import { schoolHandlers } from "@/features/schools/mocks/school.handlers";
-import { enableMockServer } from "@/shared/mocks/enable-mock-server";
+import { registerClassRoutes } from "@/features/classes/mocks/class.routes";
+import { registerSchoolRoutes } from "@/features/schools/mocks/school.routes";
 import { LoadingBlock } from "@/shared/components/loading-block";
 import { GluestackUIProvider } from "@/shared/components/ui/gluestack-ui-provider";
 import { VStack } from "@/shared/components/ui/vstack";
 import { screenBackground } from "@/shared/constants/navigation";
+import { enableMockServer } from "@/shared/mocks/enable-mock-server";
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -35,8 +35,11 @@ export default function RootLayout() {
     if (!__DEV__) {
       return;
     }
-
-    enableMockServer([...schoolHandlers, ...classHandlers])
+ 
+    enableMockServer((server) => {
+      registerClassRoutes(server);
+      registerSchoolRoutes(server);
+    })
       .catch((error: unknown) => {
         console.error(error);
       })

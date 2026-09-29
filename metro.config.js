@@ -1,6 +1,13 @@
-const { getDefaultConfig } = require('expo/metro-config');
-const { withNativewind } = require('nativewind/metro');
+const { getDefaultConfig } = require("expo/metro-config");
+const { withNativewind } = require("nativewind/metro");
 
-const config = getDefaultConfig(__dirname);
+const config = withNativewind(getDefaultConfig(__dirname), { inlineRem: 16 });
+const getDefaultPolyfills = config.serializer.getPolyfills;
 
-module.exports = withNativewind(config, { inlineRem: 16 });
+config.serializer.getPolyfills = (options) => {
+    const polyfills = getDefaultPolyfills ? getDefaultPolyfills(options) : [];
+
+    return [...polyfills, require.resolve("./src/shared/mocks/pretender-global.js")];
+};
+
+module.exports = config;
