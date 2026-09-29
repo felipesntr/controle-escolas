@@ -1,3 +1,5 @@
+import type { RequestHandler } from "msw";
+
 let startPromise: Promise<void> | null = null;
 
 function isAlreadyEnabled(error: unknown) {
@@ -7,13 +9,13 @@ function isAlreadyEnabled(error: unknown) {
     );
 }
 
-export function enableMockServer() {
+export function enableMockServer(handlers: RequestHandler[]) {
     if (!__DEV__) {
         return Promise.resolve();
     }
 
     if (!startPromise) {
-        startPromise = startMockServer().catch((error: unknown) => {
+        startPromise = startMockServer(handlers).catch((error: unknown) => {
             startPromise = null;
             throw error;
         });
@@ -22,10 +24,11 @@ export function enableMockServer() {
     return startPromise;
 }
 
-async function startMockServer() {
-    await import("../../msw.polyfills");
+async function startMockServer(handlers: RequestHandler[]) {
+    await import("../../../msw.polyfills");
 
-    const { server } = await import("./server");
+    const { createMockServer } = await import("./server");
+    const server = createMockServer(handlers);
 
     if (server == null) {
         throw new Error("Não foi possível iniciar o servidor de mocks.");

@@ -12,7 +12,9 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 
-import { enableMockServer } from "@/mocks/enable-mock-server";
+import { classHandlers } from "@/features/classes/mocks/class.handlers";
+import { schoolHandlers } from "@/features/schools/mocks/school.handlers";
+import { enableMockServer } from "@/shared/mocks/enable-mock-server";
 import { LoadingBlock } from "@/shared/components/loading-block";
 import { GluestackUIProvider } from "@/shared/components/ui/gluestack-ui-provider";
 import { VStack } from "@/shared/components/ui/vstack";
@@ -34,7 +36,7 @@ export default function RootLayout() {
       return;
     }
 
-    enableMockServer()
+    enableMockServer([...schoolHandlers, ...classHandlers])
       .catch((error: unknown) => {
         console.error(error);
       })

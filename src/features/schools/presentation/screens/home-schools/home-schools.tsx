@@ -30,9 +30,9 @@ import {
 } from "@/shared/components/ui/table";
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
-import { useFetchSchools } from "@/shared/hooks/use-fetch-schools";
+import { useFetchSchools } from "@/features/schools/hooks/use-fetch-schools";
 import { usePagedList } from "@/shared/hooks/use-paged-list";
-import { useSchoolStore } from "@/shared/stores/school.store";
+import { useSchoolStore } from "@/features/schools/stores/school.store";
 import { Div } from "@expo/html-elements";
 
 function matchesSchool(school: School, query: string) {

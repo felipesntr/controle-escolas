@@ -12,8 +12,8 @@ import {
     getSchool,
     getSchools,
     updateSchool,
-} from "@/shared/services/school.service";
-import { useClassStore } from "@/shared/stores/class.store";
+} from "@/features/schools/services/school.service";
+import { useClassStore } from "@/features/classes/stores/class.store";
 import { waitForListLoading } from "@/shared/utils/minimum-delay";
 
 type SchoolState = {

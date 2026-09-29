@@ -18,7 +18,7 @@ import {
 } from "@/shared/components/ui/icon";
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
-import { useSchoolStore } from "@/shared/stores/school.store";
+import { useSchoolStore } from "@/features/schools/stores/school.store";
 
 type SchoolDetailsScreenProps = {
     schoolId: string;

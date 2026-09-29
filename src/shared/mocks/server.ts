@@ -1,6 +1,7 @@
-import "../../msw.polyfills";
+import "../../../msw.polyfills";
+import type { RequestHandler } from "msw";
 import { setupServer } from "msw/native";
 
-import { handlers } from "./handlers";
-
-export const server = setupServer(...handlers);
+export function createMockServer(handlers: RequestHandler[]) {
+    return setupServer(...handlers);
+}

@@ -8,7 +8,7 @@ import { createSchool } from "@/features/schools/domain/school.factory";
 import {
     countClassesBySchoolId,
     removeClassesBySchoolId,
-} from "@/mocks/handlers/class.handlers";
+} from "@/features/classes/mocks/class.handlers";
 import { API_URL } from "@/shared/constants/api";
 
 let schools: School[] = [

@@ -18,8 +18,8 @@ import { Progress, ProgressFilledTrack } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
-import { useClassStore } from "@/shared/stores/class.store";
-import { useSchoolStore } from "@/shared/stores/school.store";
+import { useClassStore } from "@/features/classes/stores/class.store";
+import { useSchoolStore } from "@/features/schools/stores/school.store";
 
 type NewClassScreenProps = {
     schoolId: string;

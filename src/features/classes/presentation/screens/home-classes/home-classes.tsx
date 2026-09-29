@@ -31,7 +31,7 @@ import {
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
 import { usePagedList } from "@/shared/hooks/use-paged-list";
-import { useClassStore } from "@/shared/stores/class.store";
+import { useClassStore } from "@/features/classes/stores/class.store";
 import { Div } from "@expo/html-elements";
 
 function matchesClass(item: Class, query: string) {

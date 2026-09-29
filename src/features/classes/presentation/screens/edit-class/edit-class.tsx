@@ -17,7 +17,7 @@ import { Progress, ProgressFilledTrack } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
-import { useClassStore } from "@/shared/stores/class.store";
+import { useClassStore } from "@/features/classes/stores/class.store";
 
 type EditClassScreenProps = {
     schoolId: string;

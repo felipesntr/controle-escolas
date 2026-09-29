@@ -2,7 +2,7 @@ import { useNavigation } from "expo-router";
 import { useEffect } from "react";
 
 import type { School } from "@/features/schools/domain/school";
-import { useSchoolStore } from "@/shared/stores/school.store";
+import { useSchoolStore } from "@/features/schools/stores/school.store";
 
 type UseFetchSchoolsResult = {
     schools: School[];

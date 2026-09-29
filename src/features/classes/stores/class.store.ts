@@ -12,7 +12,7 @@ import {
     getClass,
     getClasses,
     updateClass,
-} from "@/shared/services/class.service";
+} from "@/features/classes/services/class.service";
 import { waitForListLoading } from "@/shared/utils/minimum-delay";
 
 type ClassState = {
