@@ -2,27 +2,20 @@ import { Stack } from "expo-router";
 
 import { gluestackStackOptions } from "@/shared/constants/navigation";
 
-export default function ClassesLayout() {
+export default function ClassLayout() {
     return (
         <Stack screenOptions={gluestackStackOptions}>
             <Stack.Screen
                 name="index"
                 options={{
-                    title: "Turmas",
+                    title: "Detalhes da turma",
                 }}
             />
 
             <Stack.Screen
-                name="new"
+                name="edit"
                 options={{
-                    title: "Nova turma",
-                }}
-            />
-
-            <Stack.Screen
-                name="[classId]"
-                options={{
-                    headerShown: false,
+                    title: "Editar turma",
                 }}
             />
         </Stack>

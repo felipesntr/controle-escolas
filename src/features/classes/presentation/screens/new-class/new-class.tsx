@@ -1,45 +1,46 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { ScrollView } from "react-native";
 
 import {
-    FormControl,
-    FormControlLabel,
-    FormControlLabelText,
-} from "@/shared/components/ui/form-control";
-
+    CLASS_GRADES,
+    CLASS_SHIFTS,
+} from "@/features/classes/presentation/class-options";
+import { useClassStore } from "@/features/classes/stores/class.store";
+import { useSchoolStore } from "@/features/schools/stores/school.store";
 import { useFeedbackToast } from "@/shared/components/app-toast";
+import { SelectField } from "@/shared/components/select-field";
 import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
-import { Button, ButtonIcon, ButtonText } from "@/shared/components/ui/button";
-import { Card } from "@/shared/components/ui/card";
+import { Button, ButtonText } from "@/shared/components/ui/button";
 import { Heading } from "@/shared/components/ui/heading";
-import { AlertCircleIcon, CheckIcon } from "@/shared/components/ui/icon";
+import { HStack } from "@/shared/components/ui/hstack";
+import { AlertCircleIcon } from "@/shared/components/ui/icon";
 import { Input, InputField } from "@/shared/components/ui/input";
-import { Progress, ProgressFilledTrack } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
-import { useClassStore } from "@/features/classes/stores/class.store";
-import { useSchoolStore } from "@/features/schools/stores/school.store";
 
 type NewClassScreenProps = {
     schoolId: string;
 };
 
+function FieldLabel({ label }: { label: string }) {
+    return (
+        <Text className="text-sm font-medium text-foreground">
+            {label}
+            <Text className="text-destructive"> *</Text>
+        </Text>
+    );
+}
+
 export default function NewClassScreen({ schoolId }: NewClassScreenProps) {
     const router = useRouter();
     const showToast = useFeedbackToast();
 
-    const addClass = useClassStore(
-        (state) => state.addClass
-    );
-
-    const creating = useClassStore(
-        (state) => state.creating
-    );
-
-    const error = useClassStore(
-        (state) => state.error
-    );
+    const addClass = useClassStore((state) => state.addClass);
+    const creating = useClassStore((state) => state.creating);
+    const error = useClassStore((state) => state.error);
 
     const school = useSchoolStore((state) => state.selectedSchool);
     const fetchSchool = useSchoolStore((state) => state.fetchSchool);
@@ -50,10 +51,6 @@ export default function NewClassScreen({ schoolId }: NewClassScreenProps) {
     const [formError, setFormError] = useState<string | null>(null);
 
     const schoolReady = school?.id === schoolId;
-    const filledFields = [name, grade, shift].filter((value) =>
-        value.trim()
-    ).length;
-    const progress = Math.round((filledFields / 3) * 100);
 
     useEffect(() => {
         if (!schoolId || school?.id === schoolId) {
@@ -64,12 +61,7 @@ export default function NewClassScreen({ schoolId }: NewClassScreenProps) {
     }, [schoolId, school?.id, fetchSchool]);
 
     async function handleSubmit() {
-        if (
-            !schoolId ||
-            !name.trim() ||
-            !grade.trim() ||
-            !shift.trim()
-        ) {
+        if (!schoolId || !name.trim() || !grade.trim() || !shift.trim()) {
             setFormError("Preencha nome, ano/série e turno.");
             return;
         }
@@ -89,104 +81,86 @@ export default function NewClassScreen({ schoolId }: NewClassScreenProps) {
             // Erro já está no Zustand.
         }
     }
+
     return (
-        <VStack className="flex-1 bg-background px-4 pt-4">
-            <Text className="text-typography-500">
-                Cadastre uma nova turma.
-            </Text>
-
-            <Progress value={creating ? 100 : progress} className="mt-4">
-                <ProgressFilledTrack />
-            </Progress>
-
-            <Card className="mt-6 rounded-2xl p-4">
-                <VStack>
-                    <Text className="text-sm text-typography-500">
+        <ScrollView
+            className="flex-1 bg-background"
+            contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <HStack className="items-center gap-3 rounded-2xl border border-border bg-white p-4">
+                <VStack className="h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                    <Ionicons name="business" size={20} color="#2563eb" />
+                </VStack>
+                <VStack className="flex-1">
+                    <Text size="xs" className="text-muted-foreground">
                         Escola
                     </Text>
-
-                    <Heading size="md">
+                    <Heading size="sm">
                         {schoolReady ? school.name : "Carregando escola..."}
                     </Heading>
-
-                    {schoolReady ? null : (
-                        <Spinner className="mt-3" size="small" />
+                    {schoolReady ? (
+                        <HStack className="items-center gap-1">
+                            <Ionicons name="location-outline" size={12} color="#737373" />
+                            <Text size="sm" className="text-muted-foreground">
+                                {school.city}
+                            </Text>
+                        </HStack>
+                    ) : (
+                        <Spinner className="mt-2" size="small" />
                     )}
                 </VStack>
-            </Card>
+            </HStack>
 
-            <VStack className="mt-6 gap-5">
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>
-                            Nome da turma
-                        </FormControlLabelText>
-                    </FormControlLabel>
+            <VStack className="mt-4 gap-4 rounded-2xl border border-border bg-white p-4">
+                <Heading size="sm">Dados da turma</Heading>
 
-                    <Input className="mt-2">
+                <VStack className="gap-2">
+                    <FieldLabel label="Nome da turma" />
+                    <Input className="h-12 rounded-xl bg-white">
                         <InputField
                             placeholder="Ex.: 6º Ano A"
                             value={name}
                             onChangeText={setName}
                         />
                     </Input>
-                </FormControl>
+                </VStack>
 
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>
-                            Ano/Série
-                        </FormControlLabelText>
-                    </FormControlLabel>
+                <SelectField
+                    label="Ano/Série"
+                    required
+                    value={grade}
+                    placeholder="Selecione o ano/série"
+                    options={CLASS_GRADES}
+                    onChange={setGrade}
+                />
 
-                    <Input className="mt-2">
-                        <InputField
-                            placeholder="Ex.: 6º Ano"
-                            value={grade}
-                            onChangeText={setGrade}
-                        />
-                    </Input>
-                </FormControl>
-
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>
-                            Turno
-                        </FormControlLabelText>
-                    </FormControlLabel>
-
-                    <Input className="mt-2">
-                        <InputField
-                            placeholder="Ex.: Matutino"
-                            value={shift}
-                            onChangeText={setShift}
-                        />
-                    </Input>
-                </FormControl>
-
-                {formError || error ? (
-                    <Alert variant="destructive">
-                        <AlertIcon as={AlertCircleIcon} />
-                        <AlertText>{formError ?? error}</AlertText>
-                    </Alert>
-                ) : null}
-
-                <Button
-                    size="lg"
-                    className="mt-3"
-                    disabled={creating}
-                    onPress={handleSubmit}
-                >
-                    {creating ? (
-                        <Spinner size="small" color="#fafafa" />
-                    ) : (
-                        <ButtonIcon as={CheckIcon} />
-                    )}
-                    <ButtonText>
-                        {creating ? "Cadastrando..." : "Cadastrar turma"}
-                    </ButtonText>
-                </Button>
+                <SelectField
+                    label="Turno"
+                    required
+                    value={shift}
+                    placeholder="Selecione o turno"
+                    options={CLASS_SHIFTS}
+                    onChange={setShift}
+                />
             </VStack>
-        </VStack>
+
+            {formError || error ? (
+                <Alert variant="destructive" className="mt-4">
+                    <AlertIcon as={AlertCircleIcon} />
+                    <AlertText>{formError ?? error}</AlertText>
+                </Alert>
+            ) : null}
+
+            <Button
+                size="lg"
+                className="mt-6 h-12 rounded-xl"
+                disabled={creating}
+                onPress={handleSubmit}
+            >
+                {creating ? <Spinner size="small" color="#ffffff" /> : null}
+                <ButtonText>{creating ? "Cadastrando..." : "Cadastrar turma"}</ButtonText>
+            </Button>
+        </ScrollView>
     );
 }

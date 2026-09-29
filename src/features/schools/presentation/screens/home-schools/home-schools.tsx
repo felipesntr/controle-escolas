@@ -1,39 +1,32 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import { useLayoutEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { Pressable, RefreshControl, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { School } from "@/features/schools/domain/school";
-import { createSchoolRowActions } from "@/features/schools/presentation/components/school-row-actions";
-import { ActionsMenu } from "@/shared/components/actions-menu";
+import { useFetchSchools } from "@/features/schools/hooks/use-fetch-schools";
+import { useSchoolStore } from "@/features/schools/stores/school.store";
+import { ActionSheet } from "@/shared/components/action-sheet";
 import { useFeedbackToast } from "@/shared/components/app-toast";
 import { ConfirmDialog } from "@/shared/components/confirm-dialog";
 import { LoadingBlock } from "@/shared/components/loading-block";
 import { TablePagination } from "@/shared/components/table-pagination";
 import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
-import { Button, ButtonIcon } from "@/shared/components/ui/button";
+import { Heading } from "@/shared/components/ui/heading";
+import { HStack } from "@/shared/components/ui/hstack";
 import {
-    AddIcon,
     AlertCircleIcon,
+    EditIcon,
+    EyeIcon,
     InfoIcon,
-    RefreshCwIcon,
     SearchIcon,
+    TrashIcon,
 } from "@/shared/components/ui/icon";
 import { Input, InputField, InputIcon, InputSlot } from "@/shared/components/ui/input";
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableData,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/shared/components/ui/table";
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
-import { useFetchSchools } from "@/features/schools/hooks/use-fetch-schools";
 import { usePagedList } from "@/shared/hooks/use-paged-list";
-import { useSchoolStore } from "@/features/schools/stores/school.store";
-import { Div } from "@expo/html-elements";
 
 function matchesSchool(school: School, query: string) {
     return [school.name, school.address, school.city].some((value) =>
@@ -44,7 +37,9 @@ function matchesSchool(school: School, query: string) {
 export default function HomeSchoolsScreen() {
     const router = useRouter();
     const navigation = useNavigation();
+    const insets = useSafeAreaInsets();
     const [schoolToDelete, setSchoolToDelete] = useState<School | null>(null);
+    const [menuSchool, setMenuSchool] = useState<School | null>(null);
 
     const { schools, loading, error } = useFetchSchools();
     const fetchSchools = useSchoolStore((state) => state.fetchSchools);
@@ -56,30 +51,8 @@ export default function HomeSchoolsScreen() {
         usePagedList(schools, matchesSchool);
 
     useLayoutEffect(() => {
-        navigation.setOptions({
-            headerRight: () => (
-                <>
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        accessibilityLabel="Recarregar"
-                        disabled={loading}
-                        onPress={() => fetchSchools()}
-                    >
-                        <ButtonIcon as={RefreshCwIcon} />
-                    </Button>
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        accessibilityLabel="Nova escola"
-                        onPress={() => router.push("/schools/new")}
-                    >
-                        <ButtonIcon as={AddIcon} />
-                    </Button>
-                </>
-            ),
-        });
-    }, [navigation, router, fetchSchools, loading]);
+        navigation.setOptions({ headerShown: false });
+    }, [navigation]);
 
     async function confirmDelete() {
         if (!schoolToDelete) {
@@ -100,27 +73,65 @@ export default function HomeSchoolsScreen() {
         }
     }
 
+    function openSchool(schoolId: string) {
+        router.push({
+            pathname: "/schools/[schoolId]",
+            params: { schoolId },
+        });
+    }
+
     return (
         <ScrollView
             className="flex-1 bg-background"
-            contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+            contentContainerStyle={{
+                paddingTop: insets.top + 12,
+                paddingHorizontal: 16,
+                paddingBottom: 32,
+            }}
+            refreshControl={
+                <RefreshControl
+                    refreshing={loading && schools.length > 0}
+                    onRefresh={() => fetchSchools()}
+                />
+            }
         >
-            <Text className="text-typography-500">
-                Gerencie as escolas cadastradas
+            <HStack className="items-center justify-between">
+                <Heading size="xl">Escolas</Heading>
+                <Pressable
+                    accessibilityLabel="Nova escola"
+                    onPress={() => router.push("/schools/new")}
+                    className="h-11 w-11 items-center justify-center rounded-full bg-primary"
+                >
+                    <Ionicons name="add" size={24} color="#ffffff" />
+                </Pressable>
+            </HStack>
+            <Text className="mt-1 text-muted-foreground">
+                Gerencie suas escolas cadastradas.
             </Text>
 
-            <Input className="mt-4">
+            <Input className="mt-4 h-12 rounded-xl bg-white">
                 <InputSlot className="pl-3">
                     <InputIcon as={SearchIcon} />
                 </InputSlot>
                 <InputField
-                    placeholder="Filtrar por nome, endereço ou cidade"
+                    placeholder="Buscar por nome, endereço ou cidade..."
                     value={query}
                     onChangeText={setQuery}
                 />
             </Input>
 
-            {loading ? (
+            <Text size="sm" className="mt-4 text-muted-foreground">
+                {total}{" "}
+                {query.trim()
+                    ? total === 1
+                        ? "escola encontrada"
+                        : "escolas encontradas"
+                    : total === 1
+                      ? "escola cadastrada"
+                      : "escolas cadastradas"}
+            </Text>
+
+            {loading && schools.length === 0 ? (
                 <VStack className="mt-6">
                     <LoadingBlock label="Carregando escolas..." />
                 </VStack>
@@ -133,83 +144,130 @@ export default function HomeSchoolsScreen() {
                 </Alert>
             ) : null}
 
-            {!loading ? (
-                <VStack className="mt-5">
-                    <ScrollView horizontal>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Nome</TableHead>
-                                    <TableHead>Endereço</TableHead>
-                                    <TableHead>Cidade</TableHead>
-                                    <TableHead>Turmas</TableHead>
-                                    <TableHead>Ações</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {pageItems.map((item) => (
-                                    <TableRow key={item.id} onPress={() => router.push(`/schools/${item.id}`)}>
-                                        <TableData>{item.name}</TableData>
-                                        <TableData>{item.address}</TableData>
-                                        <TableData>{item.city}</TableData>
-                                        <TableData>{item.classCount ?? 0}</TableData>
-                                        <TableData useRNView>
-                                            <ActionsMenu
-                                                actions={createSchoolRowActions({
-                                                    onView: () =>
-                                                        router.push({
-                                                            pathname:
-                                                                "/schools/[schoolId]",
-                                                            params: {
-                                                                schoolId: item.id,
-                                                            },
-                                                        }),
-                                                    onEdit: () =>
-                                                        router.push({
-                                                            pathname:
-                                                                "/schools/[schoolId]/edit",
-                                                            params: {
-                                                                schoolId: item.id,
-                                                            },
-                                                        }),
-                                                    onDelete: () => {
-                                                        clearError();
-                                                        setSchoolToDelete(item);
-                                                    },
-                                                })}
-                                            />
-                                        </TableData>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                            <Div className="flex-row items-center justify-between">
-                                <TableCaption className="items-left">
-                                    {total}{" "}
-                                    {total === 1
-                                        ? "escola encontrada"
-                                        : "escolas encontradas"}
+            {!loading || schools.length > 0 ? (
+                <VStack className="mt-3 gap-3">
+                    {pageItems.map((item) => (
+                        <Pressable
+                            key={item.id}
+                            onPress={() => openSchool(item.id)}
+                            className="rounded-2xl border border-border bg-white p-4"
+                        >
+                            <HStack className="items-start gap-3">
+                                <VStack className="h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                                    <Ionicons name="business" size={20} color="#2563eb" />
+                                </VStack>
+                                <Text className="flex-1 pt-2 font-semibold text-foreground">
+                                    {item.name}
+                                </Text>
+                                <Pressable
+                                    accessibilityLabel={`Ações de ${item.name}`}
+                                    hitSlop={8}
+                                    onPress={() => setMenuSchool(item)}
+                                >
+                                    <Ionicons
+                                        name="ellipsis-vertical"
+                                        size={18}
+                                        color="#737373"
+                                    />
+                                </Pressable>
+                            </HStack>
 
-                                </TableCaption>
-                            </Div>
-                        </Table>
-                    </ScrollView>
+                            <HStack className="mt-3 items-center gap-2">
+                                <Ionicons name="location-outline" size={14} color="#737373" />
+                                <Text size="sm" className="flex-1 text-muted-foreground">
+                                    {item.address}
+                                </Text>
+                            </HStack>
+                            <Text size="sm" className="ml-6 text-muted-foreground">
+                                {item.city}
+                            </Text>
 
-                    {total === 0 ? (
-                        <Alert className="mt-4">
+                            <HStack className="mt-3 items-center justify-between">
+                                <HStack className="items-center gap-2">
+                                    <Ionicons name="people-outline" size={14} color="#737373" />
+                                    <Text size="sm" className="text-muted-foreground">
+                                        {item.classCount ?? 0}{" "}
+                                        {(item.classCount ?? 0) === 1 ? "turma" : "turmas"}
+                                    </Text>
+                                </HStack>
+                                <Ionicons name="chevron-forward" size={16} color="#a3a3a3" />
+                            </HStack>
+                        </Pressable>
+                    ))}
+
+                    {total === 0 && !loading ? (
+                        <Alert>
                             <AlertIcon as={InfoIcon} />
                             <AlertText>
                                 Nenhuma escola encontrada para esse filtro.
                             </AlertText>
                         </Alert>
-                    ) : (
+                    ) : null}
+
+                    {total > 0 ? (
                         <TablePagination
                             page={page}
                             pageCount={pageCount}
                             onPageChange={setPage}
                         />
-                    )}
+                    ) : null}
                 </VStack>
             ) : null}
+
+            <ActionSheet
+                visible={menuSchool !== null}
+                title={menuSchool?.name ?? ""}
+                subtitle="O que você deseja fazer?"
+                onClose={() => setMenuSchool(null)}
+                actions={[
+                    {
+                        id: "view",
+                        label: "Ver escola",
+                        description: "Visualizar detalhes da escola",
+                        icon: EyeIcon,
+                        onPress: () => {
+                            if (!menuSchool) {
+                                return;
+                            }
+                            const schoolId = menuSchool.id;
+                            setMenuSchool(null);
+                            openSchool(schoolId);
+                        },
+                    },
+                    {
+                        id: "edit",
+                        label: "Editar escola",
+                        description: "Alterar informações da escola",
+                        icon: EditIcon,
+                        onPress: () => {
+                            if (!menuSchool) {
+                                return;
+                            }
+                            const schoolId = menuSchool.id;
+                            setMenuSchool(null);
+                            router.push({
+                                pathname: "/schools/[schoolId]/edit",
+                                params: { schoolId },
+                            });
+                        },
+                    },
+                    {
+                        id: "delete",
+                        label: "Excluir escola",
+                        description: "Remover escola do sistema",
+                        icon: TrashIcon,
+                        tone: "danger",
+                        onPress: () => {
+                            if (!menuSchool) {
+                                return;
+                            }
+                            clearError();
+                            setSchoolToDelete(menuSchool);
+                            setMenuSchool(null);
+                        },
+                    },
+                ]}
+            />
 
             <ConfirmDialog
                 visible={schoolToDelete !== null}

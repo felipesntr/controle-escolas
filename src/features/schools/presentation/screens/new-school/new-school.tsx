@@ -1,48 +1,40 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { ScrollView } from "react-native";
 
-import {
-    FormControl,
-    FormControlLabel,
-    FormControlLabelText,
-} from "@/shared/components/ui/form-control";
-
+import { useSchoolStore } from "@/features/schools/stores/school.store";
 import { useFeedbackToast } from "@/shared/components/app-toast";
 import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
-import { Button, ButtonIcon, ButtonText } from "@/shared/components/ui/button";
-import { AlertCircleIcon, CheckIcon } from "@/shared/components/ui/icon";
+import { Button, ButtonText } from "@/shared/components/ui/button";
+import { Heading } from "@/shared/components/ui/heading";
+import { AlertCircleIcon } from "@/shared/components/ui/icon";
 import { Input, InputField } from "@/shared/components/ui/input";
-import { Progress, ProgressFilledTrack } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
-import { useSchoolStore } from "@/features/schools/stores/school.store";
+
+function FieldLabel({ label }: { label: string }) {
+    return (
+        <Text className="text-sm font-medium text-foreground">
+            {label}
+            <Text className="text-destructive"> *</Text>
+        </Text>
+    );
+}
 
 export default function NewSchoolScreen() {
     const router = useRouter();
     const showToast = useFeedbackToast();
 
-    const addSchool = useSchoolStore(
-        (state) => state.addSchool
-    );
-
-    const creating = useSchoolStore(
-        (state) => state.creating
-    );
-
-    const error = useSchoolStore(
-        (state) => state.error
-    );
+    const addSchool = useSchoolStore((state) => state.addSchool);
+    const creating = useSchoolStore((state) => state.creating);
+    const error = useSchoolStore((state) => state.error);
 
     const [name, setName] = useState("");
     const [address, setAddress] = useState("");
     const [city, setCity] = useState("");
     const [formError, setFormError] = useState<string | null>(null);
-
-    const filledFields = [name, address, city].filter((value) =>
-        value.trim()
-    ).length;
-    const progress = Math.round((filledFields / 3) * 100);
 
     async function handleSubmit() {
         if (!name.trim() || !address.trim() || !city.trim()) {
@@ -61,94 +53,82 @@ export default function NewSchoolScreen() {
 
             showToast("Escola cadastrada", `${name.trim()} foi adicionada.`);
             router.back();
-        } catch (error) {
-            console.error("Erro ao cadastrar escola", error);
-            // O erro já está no Zustand.
+        } catch (submitError) {
+            console.error("Erro ao cadastrar escola", submitError);
         }
     }
 
     return (
-        <VStack className="flex-1 bg-background px-4 pt-4">
-            <Text className="text-typography-500">
-                Cadastre uma nova escola pública.
-            </Text>
+        <ScrollView
+            className="flex-1 bg-background"
+            contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <VStack className="items-center pt-2">
+                <VStack className="h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                    <Ionicons name="business" size={28} color="#2563eb" />
+                </VStack>
+                <Heading size="lg" className="mt-3">
+                    Nova escola
+                </Heading>
+                <Text className="text-muted-foreground">
+                    Cadastre uma nova escola pública.
+                </Text>
+            </VStack>
 
-            <Progress value={creating ? 100 : progress} className="mt-4">
-                <ProgressFilledTrack />
-            </Progress>
+            <VStack className="mt-6 gap-4 rounded-2xl border border-border bg-white p-4">
+                <Heading size="sm">Dados da escola</Heading>
 
-            <VStack className="mt-8 gap-5">
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>
-                            Nome da escola
-                        </FormControlLabelText>
-                    </FormControlLabel>
-
-                    <Input className="mt-2">
+                <VStack className="gap-2">
+                    <FieldLabel label="Nome da escola" />
+                    <Input className="h-12 rounded-xl bg-white">
                         <InputField
                             placeholder="Ex.: Escola Municipal João Silva"
                             value={name}
                             onChangeText={setName}
                         />
                     </Input>
-                </FormControl>
+                </VStack>
 
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>
-                            Endereço
-                        </FormControlLabelText>
-                    </FormControlLabel>
-
-                    <Input className="mt-2">
+                <VStack className="gap-2">
+                    <FieldLabel label="Endereço" />
+                    <Input className="h-12 rounded-xl bg-white">
                         <InputField
-                            placeholder="Rua, número..."
+                            placeholder="Rua, número, bairro..."
                             value={address}
                             onChangeText={setAddress}
                         />
                     </Input>
-                </FormControl>
+                </VStack>
 
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>
-                            Cidade
-                        </FormControlLabelText>
-                    </FormControlLabel>
-
-                    <Input className="mt-2">
+                <VStack className="gap-2">
+                    <FieldLabel label="Cidade" />
+                    <Input className="h-12 rounded-xl bg-white">
                         <InputField
                             placeholder="Ex.: Aracaju"
                             value={city}
                             onChangeText={setCity}
                         />
                     </Input>
-                </FormControl>
-
-                {formError || error ? (
-                    <Alert variant="destructive">
-                        <AlertIcon as={AlertCircleIcon} />
-                        <AlertText>{formError ?? error}</AlertText>
-                    </Alert>
-                ) : null}
-
-                <Button
-                    size="lg"
-                    className="mt-3"
-                    disabled={creating}
-                    onPress={handleSubmit}
-                >
-                    {creating ? (
-                        <Spinner size="small" color="#fafafa" />
-                    ) : (
-                        <ButtonIcon as={CheckIcon} />
-                    )}
-                    <ButtonText>
-                        {creating ? "Cadastrando..." : "Cadastrar escola"}
-                    </ButtonText>
-                </Button>
+                </VStack>
             </VStack>
-        </VStack>
+
+            {formError || error ? (
+                <Alert variant="destructive" className="mt-4">
+                    <AlertIcon as={AlertCircleIcon} />
+                    <AlertText>{formError ?? error}</AlertText>
+                </Alert>
+            ) : null}
+
+            <Button
+                size="lg"
+                className="mt-6 h-12 rounded-xl"
+                disabled={creating}
+                onPress={handleSubmit}
+            >
+                {creating ? <Spinner size="small" color="#ffffff" /> : null}
+                <ButtonText>{creating ? "Cadastrando..." : "Cadastrar escola"}</ButtonText>
+            </Button>
+        </ScrollView>
     );
 }

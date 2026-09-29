@@ -17,7 +17,7 @@ type AppHeaderProps = {
     };
 };
 
-export const screenBackground = "#ffffff";
+export const screenBackground = "#F7F8FA";
 
 export const gluestackStackOptions = {
     header: (props: AppHeaderProps) => <AppHeader {...props} />,
@@ -33,7 +33,7 @@ export function AppHeader({ options, back, navigation }: AppHeaderProps) {
 
     return (
         <VStack
-            className="border-b border-border bg-background"
+            className="border-b border-border bg-white"
             style={{ paddingTop: insets.top }}
         >
             <HStack className="h-14 items-center px-2">

@@ -1,33 +1,41 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { Pressable, ScrollView } from "react-native";
 
+import {
+    CLASS_GRADES,
+    CLASS_SHIFTS,
+    withCurrentOption,
+} from "@/features/classes/presentation/class-options";
+import { useClassStore } from "@/features/classes/stores/class.store";
 import { useFeedbackToast } from "@/shared/components/app-toast";
 import { ConfirmDialog } from "@/shared/components/confirm-dialog";
 import { LoadingBlock } from "@/shared/components/loading-block";
+import { SelectField } from "@/shared/components/select-field";
 import { Alert, AlertIcon, AlertText } from "@/shared/components/ui/alert";
-import { Button, ButtonIcon, ButtonText } from "@/shared/components/ui/button";
-import {
-    FormControl,
-    FormControlLabel,
-    FormControlLabelText,
-} from "@/shared/components/ui/form-control";
-import { AlertCircleIcon, CheckIcon, TrashIcon } from "@/shared/components/ui/icon";
+import { Button, ButtonText } from "@/shared/components/ui/button";
+import { Heading } from "@/shared/components/ui/heading";
+import { AlertCircleIcon } from "@/shared/components/ui/icon";
 import { Input, InputField } from "@/shared/components/ui/input";
-import { Progress, ProgressFilledTrack } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Text } from "@/shared/components/ui/text";
 import { VStack } from "@/shared/components/ui/vstack";
-import { useClassStore } from "@/features/classes/stores/class.store";
 
 type EditClassScreenProps = {
     schoolId: string;
     classId: string;
 };
 
-export default function EditClassScreen({
-    schoolId,
-    classId,
-}: EditClassScreenProps) {
+function FieldLabel({ label }: { label: string }) {
+    return (
+        <Text className="text-sm font-medium text-foreground">
+            {label}
+            <Text className="text-destructive"> *</Text>
+        </Text>
+    );
+}
+
+export default function EditClassScreen({ schoolId, classId }: EditClassScreenProps) {
     const router = useRouter();
     const showToast = useFeedbackToast();
 
@@ -46,11 +54,6 @@ export default function EditClassScreen({
     const [hydrated, setHydrated] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
-
-    const filledFields = [name, grade, shift].filter((value) =>
-        value.trim()
-    ).length;
-    const progress = Math.round((filledFields / 3) * 100);
 
     useEffect(() => {
         clearError();
@@ -76,13 +79,7 @@ export default function EditClassScreen({
     }, [selectedClass, classId, hydrated]);
 
     async function handleSubmit() {
-        if (
-            !schoolId ||
-            !classId ||
-            !name.trim() ||
-            !grade.trim() ||
-            !shift.trim()
-        ) {
+        if (!schoolId || !classId || !name.trim() || !grade.trim() || !shift.trim()) {
             setFormError("Preencha nome, ano/série e turno.");
             return;
         }
@@ -136,96 +133,71 @@ export default function EditClassScreen({
     }
 
     return (
-        <VStack className="flex-1 bg-background px-4 pt-4">
-            <Text className="text-typography-500">
-                Atualize os dados da turma.
-            </Text>
+        <ScrollView
+            className="flex-1 bg-background"
+            contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            <VStack className="gap-4 rounded-2xl border border-border bg-white p-4">
+                <Heading size="sm">Dados da turma</Heading>
 
-            <Progress value={updating ? 100 : progress} className="mt-4">
-                <ProgressFilledTrack />
-            </Progress>
-
-            <VStack className="mt-8 gap-5">
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>
-                            Nome da turma
-                        </FormControlLabelText>
-                    </FormControlLabel>
-
-                    <Input className="mt-2">
+                <VStack className="gap-2">
+                    <FieldLabel label="Nome da turma" />
+                    <Input className="h-12 rounded-xl bg-white">
                         <InputField
                             placeholder="Ex.: 6º Ano A"
                             value={name}
                             onChangeText={setName}
                         />
                     </Input>
-                </FormControl>
+                </VStack>
 
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>Ano/Série</FormControlLabelText>
-                    </FormControlLabel>
+                <SelectField
+                    label="Ano/Série"
+                    required
+                    value={grade}
+                    placeholder="Selecione o ano/série"
+                    options={withCurrentOption(CLASS_GRADES, grade)}
+                    onChange={setGrade}
+                />
 
-                    <Input className="mt-2">
-                        <InputField
-                            placeholder="Ex.: 6º Ano"
-                            value={grade}
-                            onChangeText={setGrade}
-                        />
-                    </Input>
-                </FormControl>
-
-                <FormControl>
-                    <FormControlLabel>
-                        <FormControlLabelText>Turno</FormControlLabelText>
-                    </FormControlLabel>
-
-                    <Input className="mt-2">
-                        <InputField
-                            placeholder="Ex.: Matutino"
-                            value={shift}
-                            onChangeText={setShift}
-                        />
-                    </Input>
-                </FormControl>
-
-                {(formError || error) && !confirmDelete ? (
-                    <Alert variant="destructive">
-                        <AlertIcon as={AlertCircleIcon} />
-                        <AlertText>{formError ?? error}</AlertText>
-                    </Alert>
-                ) : null}
-
-                <Button
-                    size="lg"
-                    className="mt-3"
-                    disabled={updating || deleting}
-                    onPress={handleSubmit}
-                >
-                    {updating ? (
-                        <Spinner size="small" color="#fafafa" />
-                    ) : (
-                        <ButtonIcon as={CheckIcon} />
-                    )}
-                    <ButtonText>
-                        {updating ? "Salvando..." : "Salvar alterações"}
-                    </ButtonText>
-                </Button>
-
-                <Button
-                    size="lg"
-                    variant="destructive"
-                    disabled={updating || deleting}
-                    onPress={() => {
-                        clearError();
-                        setConfirmDelete(true);
-                    }}
-                >
-                    <ButtonIcon as={TrashIcon} />
-                    <ButtonText>Excluir turma</ButtonText>
-                </Button>
+                <SelectField
+                    label="Turno"
+                    required
+                    value={shift}
+                    placeholder="Selecione o turno"
+                    options={withCurrentOption(CLASS_SHIFTS, shift)}
+                    onChange={setShift}
+                />
             </VStack>
+
+            {(formError || error) && !confirmDelete ? (
+                <Alert variant="destructive" className="mt-4">
+                    <AlertIcon as={AlertCircleIcon} />
+                    <AlertText>{formError ?? error}</AlertText>
+                </Alert>
+            ) : null}
+
+            <Button
+                size="lg"
+                className="mt-6 h-12 rounded-xl"
+                disabled={updating || deleting}
+                onPress={handleSubmit}
+            >
+                {updating ? <Spinner size="small" color="#ffffff" /> : null}
+                <ButtonText>{updating ? "Salvando..." : "Salvar alterações"}</ButtonText>
+            </Button>
+
+            <Pressable
+                disabled={updating || deleting}
+                onPress={() => {
+                    clearError();
+                    setConfirmDelete(true);
+                }}
+                className="mt-3 items-center rounded-xl border border-destructive/30 bg-white py-3"
+            >
+                <Text className="font-medium text-destructive">Excluir turma</Text>
+            </Pressable>
 
             <ConfirmDialog
                 visible={confirmDelete}
@@ -239,6 +211,6 @@ export default function EditClassScreen({
                 }}
                 onConfirm={handleDelete}
             />
-        </VStack>
+        </ScrollView>
     );
 }

@@ -8,7 +8,7 @@ export default function SchoolLayout() {
             <Stack.Screen
                 name="index"
                 options={{
-                    title: "Escola",
+                    title: "Detalhes da escola",
                 }}
             />
 
